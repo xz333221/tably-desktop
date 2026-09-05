@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { Desktop, mountDesktop, builtInWidgets, validateConfig } from '../dist/index.js';
+const require = createRequire(import.meta.url);
+const cjs = require('../dist/index.cjs');
+const config = { version: 1, items: [{ id: 'link', type: 'link', title: 'Consumer site', url: 'https://example.com' }] };
+assert.equal(validateConfig(config).valid, true);
+assert.equal(cjs.validateConfig(config).valid, true);
+assert.equal(typeof mountDesktop, 'function');
+assert.equal(Object.keys(builtInWidgets).length, 5);
+assert.match(renderToString(createElement(Desktop, { config, editable: false })), /Consumer site/);
+console.log('ES module, CommonJS, server render and public exports: passed');

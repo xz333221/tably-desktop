@@ -1,0 +1,109 @@
+.tably-widget-card {
+  --tably-ink: #26302d;
+  --tably-muted: #71807b;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  color: var(--tably-ink);
+  container-type: size;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.tably-widget-card *, .tably-widget-card *::before, .tably-widget-card *::after { box-sizing: border-box; }
+.tably-widget-card .tably-eyebrow { display: block; color: var(--tably-muted); font-size: 10px; font-weight: 650; letter-spacing: .045em; }
+.tably-widget-card h2, .tably-widget-card p { margin: 0; }
+
+.tably-widget-card .tably-weather { height: 100%; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 5px; background: linear-gradient(145deg, #e6f3f7, #edf5ed); }
+.tably-widget-card .tably-weather-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.tably-widget-card .tably-weather h2 { margin-top: 3px; font-size: 18px; letter-spacing: -.03em; line-height: 1.2; }
+.tably-widget-card .tably-weather-range { color: #648078; margin-top: 3px; font-size: 10px; line-height: 1.3; }
+.tably-widget-card .tably-weather-sun { display: grid; place-items: center; width: 44px; flex-shrink: 0; aspect-ratio: 1; border-radius: 15px; color: #eaa549; background: rgba(255, 247, 204, .75); }
+.tably-widget-card .tably-weather-sun svg { width: 30px; height: 30px; }
+.tably-widget-card .tably-weather-temp { display: flex; align-items: baseline; gap: 8px; }
+.tably-widget-card .tably-weather-temp strong { font-size: clamp(33px, 16cqw, 49px); line-height: .95; letter-spacing: -.075em; font-weight: 600; }
+.tably-widget-card .tably-weather-temp span { color: #65827c; font-size: 10px; }
+.tably-widget-card .tably-weather-hourly { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding-top: 6px; border-top: 1px solid rgba(82, 122, 113, .14); }
+.tably-widget-card .tably-hour { display: grid; justify-items: center; gap: 2px; color: #708782; font-size: 9px; line-height: 1.25; }
+.tably-widget-card .tably-hour svg { width: 15px; height: 15px; color: #7ba7a6; }
+.tably-widget-card .tably-hour b { color: #3c5e59; font-size: 10px; font-weight: 600; }
+.tably-widget-card .tably-weather-foot { display: flex; align-items: center; gap: 5px; color: #6d8981; font-size: 9px; line-height: 1.2; }
+.tably-widget-card .tably-weather-foot svg { width: 13px; height: 13px; }
+
+.tably-widget-card .tably-clock { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 14px; background: radial-gradient(circle at 80% 10%, rgba(221, 234, 230, .9), transparent 54%), #f7f6f1; }
+.tably-widget-card .tably-clock-icon { display: grid; place-items: center; width: 32px; height: 32px; margin-bottom: 8px; border-radius: 11px; color: #61847c; background: #e6efeb; }
+.tably-widget-card .tably-clock-icon svg { width: 20px; height: 20px; }
+.tably-widget-card .tably-clock-time { margin-top: 5px; font-size: clamp(30px, 16cqw, 52px); font-weight: 580; line-height: 1.05; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
+.tably-widget-card .tably-clock-time small { color: #82928e; font-size: .4em; letter-spacing: -.02em; }
+.tably-widget-card .tably-clock-date { margin-top: 8px; color: #576965; font-size: 11px; }
+.tably-widget-card .tably-clock-zone { margin-top: 5px; color: #8b9b94; font-size: 9px; }
+
+.tably-widget-card .tably-notes { height: 100%; display: flex; flex-direction: column; padding: 16px; background: #fbf3d9; }
+.tably-widget-card .tably-notes-title { display: flex; align-items: center; justify-content: space-between; color: #705f37; font-size: 13px; font-weight: 650; }
+.tably-widget-card .tably-notes-title svg { width: 20px; height: 20px; color: #b29658; }
+.tably-widget-card .tably-notes textarea { flex: 1; width: 100%; min-height: 0; margin-top: 9px; padding: 3px 2px; border: 0; resize: none; outline: none; color: #645731; background: repeating-linear-gradient(to bottom, transparent 0, transparent 23px, rgba(169, 142, 82, .19) 24px); font: inherit; font-size: 12px; line-height: 24px; }
+.tably-widget-card .tably-notes textarea::placeholder { color: #aa9661; opacity: .8; }
+.tably-widget-card .tably-notes textarea:focus-visible { outline: 1px solid #b8a675; outline-offset: 3px; border-radius: 2px; }
+.tably-widget-card .tably-notes-meta { padding-top: 6px; color: #9b8855; font-size: 9px; text-align: right; }
+
+.tably-widget-card .tably-focus { height: 100%; display: flex; flex-direction: column; padding: 14px 16px; background: linear-gradient(150deg, #edf5ed, #e5f0e9); }
+.tably-widget-card .tably-focus-head { display: flex; align-items: center; justify-content: space-between; }
+.tably-widget-card .tably-focus-head > svg { width: 19px; height: 19px; color: #719c87; }
+.tably-widget-card .tably-focus-dial { position: relative; display: grid; place-items: center; flex: 1; min-height: 0; }
+.tably-widget-card .tably-focus-dial svg { height: min(105px, 100%); width: min(105px, 100%); max-height: 100%; transform: rotate(-90deg); overflow: visible; }
+.tably-widget-card .tably-focus-track, .tably-widget-card .tably-focus-progress { fill: none; stroke-width: 6; }
+.tably-widget-card .tably-focus-track { stroke: rgba(104, 143, 121, .16); }
+.tably-widget-card .tably-focus-progress { stroke: #76a18a; stroke-linecap: round; transition: stroke-dashoffset .25s ease; }
+.tably-widget-card .tably-focus-time { position: absolute; display: grid; justify-items: center; gap: 2px; }
+.tably-widget-card .tably-focus-time strong { color: #416953; font-size: 25px; font-weight: 620; letter-spacing: -.055em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tably-widget-card .tably-focus-time small { color: #789181; font-size: 8px; }
+.tably-widget-card .tably-focus-actions { display: flex; flex-shrink: 0; align-items: center; gap: 8px; }
+.tably-focus-actions .tably-button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 29px; height: 29px; border: 0; border-radius: 9px; padding: 0 12px; cursor: pointer; font: inherit; font-size: 11px; font-weight: 600; transition: transform .18s ease, background .18s ease; }
+.tably-focus-actions .tably-button:active { transform: scale(.97); }
+.tably-focus-actions .tably-button svg { width: 14px; height: 14px; }
+.tably-focus-actions .tably-button-primary { flex: 1; color: #fff; background: #668e76; box-shadow: none; }
+.tably-focus-actions .tably-button-primary:hover { background: #5b836a; }
+.tably-focus-actions .tably-button-ghost { width: 29px; padding: 0; color: #658172; background: rgba(255, 255, 255, .58); }
+
+.tably-widget-card .tably-calendar { height: 100%; display: flex; flex-direction: column; padding: 14px 16px; background: rgba(250, 249, 245, .84); }
+.tably-widget-card .tably-calendar-head { display: flex; flex-shrink: 0; align-items: flex-start; justify-content: space-between; }
+.tably-widget-card .tably-calendar-head h2 { margin-top: 3px; color: #34443f; font-size: 17px; letter-spacing: -.03em; line-height: 1.1; }
+.tably-widget-card .tably-calendar-head > svg { width: 23px; height: 23px; color: #779b8e; }
+.tably-widget-card .tably-calendar-week, .tably-widget-card .tably-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.tably-widget-card .tably-calendar-week { flex-shrink: 0; margin-top: 8px; padding-bottom: 5px; color: #98a6a0; font-size: 9px; font-weight: 600; line-height: 1.2; }
+.tably-widget-card .tably-calendar-grid { flex: 1; min-height: 0; grid-auto-rows: 1fr; row-gap: 2px; color: #52645e; font-size: 11px; }
+.tably-widget-card .tably-calendar-grid span { display: grid; place-items: center; min-height: 0; border-radius: 6px; line-height: 1; }
+.tably-widget-card .tably-calendar-grid span.is-today { color: #fff; background: #729887; font-weight: 650; }
+
+@container (max-height: 205px) {
+  .tably-widget-card .tably-weather { padding: 13px 15px; gap: 4px; }
+  .tably-widget-card .tably-weather-foot { display: none; }
+  .tably-widget-card .tably-weather-temp strong { font-size: 39px; }
+}
+@container (max-height: 180px) {
+  .tably-widget-card .tably-weather, .tably-widget-card .tably-notes, .tably-widget-card .tably-focus, .tably-widget-card .tably-calendar { padding: 12px 14px; }
+  .tably-widget-card .tably-weather h2 { font-size: 16px; }
+  .tably-widget-card .tably-weather-sun { width: 37px; border-radius: 12px; }
+  .tably-widget-card .tably-weather-sun svg { width: 27px; height: 27px; }
+  .tably-widget-card .tably-weather-temp strong { font-size: 34px; }
+  .tably-widget-card .tably-hour svg { display: none; }
+  .tably-widget-card .tably-weather-hourly { padding-top: 5px; }
+  .tably-widget-card .tably-clock-icon { width: 27px; height: 27px; margin-bottom: 5px; }
+  .tably-widget-card .tably-clock-time { font-size: 39px; }
+  .tably-widget-card .tably-clock-date { margin-top: 6px; }
+  .tably-widget-card .tably-focus-dial svg { width: 83px; height: 83px; }
+  .tably-widget-card .tably-focus-time strong { font-size: 23px; }
+  .tably-widget-card .tably-focus-time small { font-size: 8px; }
+  .tably-widget-card .tably-calendar-head h2 { font-size: 15px; margin-top: 2px; }
+  .tably-widget-card .tably-calendar-head .tably-eyebrow { font-size: 8px; }
+  .tably-widget-card .tably-calendar-week { margin-top: 5px; padding-bottom: 4px; font-size: 8px; }
+  .tably-widget-card .tably-calendar-grid { font-size: 10px; row-gap: 1px; }
+}
+@container (min-height: 250px) {
+  .tably-widget-card .tably-calendar { padding: 20px; }
+  .tably-widget-card .tably-calendar-head h2 { font-size: 21px; }
+  .tably-widget-card .tably-calendar-week { margin-top: 15px; padding-bottom: 9px; }
+  .tably-widget-card .tably-calendar-grid { font-size: 12px; row-gap: 4px; }
+}
