@@ -190,6 +190,20 @@ export function App() {
 
 ## 自定义小组件
 
+## 旧项目迁移
+
+如果你已有 Nuxt/Vue 或旧 React 起始页数据，可以用 `migrateLegacyHomeConfig` 先转换网站和小组件，再逐步替换页面：
+
+```ts
+import { migrateLegacyHomeConfig } from 'tably-desktop';
+
+const { config, warnings } = migrateLegacyHomeConfig(oldHomeConfig);
+// config 可直接交给 <Desktop config={config} onChange={setConfig} />
+console.info('迁移提示', warnings);
+```
+
+迁移器识别 `front_config.open_url_list`、`user_url_list`、`componentsList` 和常见的 `row/col/config` 字段；不安全或格式错误的网站地址会跳过，并通过 `warnings` 告知。搜索引擎配置仍交给 `flowdash-search`，不会混进桌面 JSON。
+
 注册表的键就是配置中 `item.widget` 的值：
 
 ```tsx
