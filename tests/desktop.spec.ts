@@ -193,6 +193,7 @@ test.describe('tably desktop demo', () => {
     await expect(page.locator('.tably-desk-hint')).toHaveCount(0);
     await expect(page.locator('.tably-bottom-caption')).toHaveCount(0);
     await expect(page.locator('.tably-bottom-mode')).toHaveCount(0);
+    await expect(page.locator('.tably-item-menu')).toHaveCount(0);
 
     await page.locator('.tably-workspace').click({ button: 'right', position: { x: 10, y: 10 } });
     const menu = page.getByRole('menu', { name: '桌面操作' });

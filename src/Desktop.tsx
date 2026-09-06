@@ -140,7 +140,7 @@ function DesktopSurface({ config, onChange, widgets, onOpenLink, editable = true
       </section>}
 
       {!minimal && <div className="tably-section-bar"><div className="tably-section-name"><span className="tably-section-dot" />我的空间<span className="tably-item-count">{current.items.length}</span></div>{editable && <div className="tably-layout-actions">{history.length > 0 && <button type="button" onClick={undo} title="撤销上一步" aria-label="撤销上一步"><ArrowUUpLeft size={17} /></button>}<button type="button" onClick={() => { change(autoArrange(current, columns)); notify('桌面已自动整理'); }}><GridFour size={15} /><span>自动整理</span></button><span className="tably-toolbar-divider" /><button type="button" aria-pressed={editing} onClick={() => setEditing(!editing)} className={editing ? 'tably-edit-active' : ''}>{editing ? <Check size={15} /> : <PencilSimple size={15} />}<span>{editing ? '完成编辑' : '编辑布局'}</span></button></div>}</div>}
-      <DesktopGrid config={current} registry={registry} editing={editing} editable={editable} onChange={change} onOpen={openItem} onMenu={setManaged} onNotify={notify} onColumns={setColumns} />
+      <DesktopGrid config={current} registry={registry} editing={editing} editable={editable} minimal={minimal} onChange={change} onOpen={openItem} onMenu={setManaged} onNotify={notify} onColumns={setColumns} />
       {!minimal && <div className="tably-desk-hint">{editable ? <><Cursor size={14} />{editing ? '拖动应用调整位置；小组件顶部可拖动。Alt + 方向键也能移动。' : '随意拖一拖。将两个应用叠在一起，发现新的可能。'}</> : '属于你的数字空间'}</div>}
     </main>
 

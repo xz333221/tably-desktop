@@ -16,6 +16,7 @@ interface GridProps {
   registry: WidgetRegistry;
   editing: boolean;
   editable: boolean;
+  minimal: boolean;
   onChange: (config: DesktopConfig) => void;
   onOpen: (item: DesktopItem) => void;
   onMenu: (item: DesktopItem) => void;
@@ -30,7 +31,7 @@ interface Drag {
   scrollTop: number;
 }
 
-export function DesktopGrid({ config, registry, editing, editable, onChange, onOpen, onMenu, onNotify, onColumns }: GridProps) {
+export function DesktopGrid({ config, registry, editing, editable, minimal, onChange, onOpen, onMenu, onNotify, onColumns }: GridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const ghostRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<Drag | null>(null);
@@ -180,7 +181,7 @@ export function DesktopGrid({ config, registry, editing, editable, onChange, onO
           {editable && <div className="tably-widget-handle" data-drag-handle tabIndex={0} aria-label={`移动${item.title}`} title="拖动移动；Alt + 方向键微调"><DotsSix size={18} weight="bold" /></div>}
           <WidgetBoundary key={item.widget} title={item.title}>{Widget ? <Widget item={item} editing={editing && editable} readOnly={!editable} updateProps={patch => updateProps(item, patch)} /> : <div className="tably-widget-missing"><PuzzlePiece size={30} /><strong>{item.title}</strong><span>请注册 {item.widget} 组件</span></div>}</WidgetBoundary>
         </article>}
-        {editable && <button type="button" className="tably-item-menu" data-no-drag aria-label={`管理${item.title}`} onClick={() => onMenu(item)}><DotsThree size={19} weight="bold" /></button>}
+        {editable && !minimal && <button type="button" className="tably-item-menu" data-no-drag aria-label={`管理${item.title}`} onClick={() => onMenu(item)}><DotsThree size={19} weight="bold" /></button>}
         {merge?.id === item.id && <span className="tably-merge-label">{merge.ready ? '松开放入文件夹' : '稍停片刻，合并应用'}</span>}
       </div>;
     })}
