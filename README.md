@@ -82,6 +82,16 @@ export function App() {
 
 传入 `onChange` 时，桌面发生拖动、合并或小组件属性变化会回调最新 JSON，适合由宿主保存为受控状态。省略 `onChange` 时，桌面会在组件内部维护更新；仍可通过外部 `config` 重新初始化或覆盖。`editable={false}` 会关闭拖动、合并、菜单和小组件编辑控件，适合只读展示。
 
+### 简洁模式
+
+起始页可以把搜索框放在桌面组件外部，并让桌面区域只呈现图标、小组件和底部快捷栏。传入 `minimal` 后，顶部导航、桌面内部搜索、布局工具栏和说明文字会隐藏；在桌面空白处右键可以添加网站/小组件、整理布局、调整外观、导入导出 JSON 或撤销，右键图标可以编辑或移除项目。
+
+```tsx
+<Desktop config={config} onChange={setConfig} minimal editable />
+```
+
+`mode="minimal"` 和 `compact` 也可以作为 `minimal` 的别名，方便宿主应用用自己的显示模式命名。
+
 ## DOM 挂载 API
 
 包内部使用 React 渲染，但 `mountDesktop` 只需要一个 DOM 元素，适合原生 JavaScript、Vue、Svelte 或其他框架的页面：
