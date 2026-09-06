@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { SquaresFour, Plus, MagnifyingGlass, SlidersHorizontal, Code, ArrowCounterClockwise, ArrowUUpLeft, Check, ArrowUpRight, UploadSimple, DownloadSimple, Copy, GridFour, Cursor, PencilSimple, ArrowSquareOut, Trash, X, CloudSun, Clock, NoteBlank, Timer, CalendarBlank, PuzzlePiece, CaretRight, House, CheckCircle } from '@phosphor-icons/react';
 import { DesktopGrid } from './DesktopGrid';
 import { Dialog } from './Dialog';
@@ -11,6 +11,7 @@ import type { DesktopConfig, DesktopFolder, DesktopItem, DesktopLink, DesktopPro
 import './style.css';
 
 type Panel = 'add' | 'widgets' | 'appearance' | 'json' | null;
+type ContextMenuState = { x: number; y: number; item: DesktopItem | null };
 const builtInIconOptions = ['google', 'baidu', 'github', 'figma', 'notion', 'youtube', 'bilibili', 'pinterest', 'spotify', 'dribbble', 'browser', 'read', 'mail', 'image'];
 const widgetIcons: Record<string, typeof CloudSun> = { weather: CloudSun, clock: Clock, notes: NoteBlank, focus: Timer, calendar: CalendarBlank };
 const uid = (prefix: string) => `${prefix}-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
@@ -21,7 +22,8 @@ export function Desktop(props: DesktopProps) {
   return <DesktopSurface {...props} />;
 }
 
-function DesktopSurface({ config, onChange, widgets, onOpenLink, editable = true, className = '', style }: DesktopProps) {
+function DesktopSurface({ config, onChange, widgets, onOpenLink, editable = true, minimal: minimalProp = false, mode = 'full', compact = false, className = '', style }: DesktopProps) {
+  const minimal = minimalProp || compact || mode === 'minimal';
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const [internal, setInternal] = useState(config);
@@ -39,15 +41,17 @@ function DesktopSurface({ config, onChange, widgets, onOpenLink, editable = true
   const [history, setHistory] = useState<DesktopConfig[]>([]);
   const [columns, setColumns] = useState(12);
   const [now, setNow] = useState(() => new Date());
+  const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const notificationTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const submitted = useRef<DesktopConfig | undefined>(undefined);
   const searchId = useId();
   const registry: WidgetRegistry = useMemo(() => ({ ...builtInWidgets, ...widgets }), [widgets]);
   useEffect(() => {
     setInternal(config);
-    if (submitted.current !== config) { setHistory([]); setManaged(null); setFolderId(null); setPanel(null); setQuery(''); setEditing(false); }
+    if (submitted.current !== config) { setHistory([]); setManaged(null); setFolderId(null); setPanel(null); setQuery(''); setEditing(false); setContextMenu(null); }
   }, [config]);
   useEffect(() => { const id = setInterval(() => setNow(new Date()), 30_000); return () => { clearInterval(id); clearTimeout(notificationTimer.current); }; }, []);
+  useEffect(() => { if (!minimal) setContextMenu(null); }, [minimal]);
   const notify = useCallback((text: string) => {
     clearTimeout(notificationTimer.current); setNotice(text);
     notificationTimer.current = setTimeout(() => setNotice(''), 2600);
@@ -101,32 +105,67 @@ function DesktopSurface({ config, onChange, widgets, onOpenLink, editable = true
   const dock = current.items.filter((i): i is DesktopLink => i.type === 'link').slice(0, 4);
   const dateLabel = now.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'long' });
   const wallpaper = current.settings?.wallpaper ?? 'linen';
+  const handleContextMenu = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (!minimal) return;
+    event.preventDefault();
+    const tile = (event.target as HTMLElement).closest<HTMLElement>('[data-item-id]');
+    const item = tile ? current.items.find(candidate => candidate.id === tile.dataset.itemId) ?? null : null;
+    const menuWidth = 246;
+    const menuHeight = item ? 310 : 360;
+    setContextMenu({
+      x: Math.min(event.clientX, Math.max(8, window.innerWidth - menuWidth - 8)),
+      y: Math.min(event.clientY, Math.max(8, window.innerHeight - menuHeight - 8)),
+      item,
+    });
+  };
 
-  return <div ref={rootRef} className={`tably-desktop tably-theme-${wallpaper} ${className}`} style={style} onKeyDown={e => {
+  return <div ref={rootRef} className={`tably-desktop tably-theme-${wallpaper}${minimal ? ' tably-desktop--minimal' : ''} ${className}`} style={style} onContextMenu={handleContextMenu} onPointerDown={event => {
+    if (contextMenu && !(event.target as HTMLElement).closest('.tably-context-menu')) setContextMenu(null);
+  }} onKeyDown={e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); searchRef.current?.focus(); }
-    if (e.key === 'Escape') { setQuery(''); setEditing(false); }
+    if (e.key === 'Escape') { setQuery(''); setEditing(false); setContextMenu(null); }
   }}>
-    <header className="tably-topbar">
+    {!minimal && <header className="tably-topbar">
       <a className="tably-brand" href="#" onClick={e => { e.preventDefault(); rootRef.current?.querySelector('.tably-workspace')?.scrollTo({ top: 0, behavior: 'smooth' }); }} aria-label="Tably 桌面首页"><span className="tably-brand-symbol"><SquaresFour size={22} weight="fill" /></span><span>tably<span className="tably-brand-period">.</span></span></a>
       <nav className="tably-topnav" aria-label="桌面导航"><button type="button" className="tably-nav-active" onClick={() => { setPanel(null); setQuery(''); }}><House size={16} weight="fill" />我的桌面</button>{editable && <><button type="button" onClick={() => setPanel('widgets')}><SquaresFour size={17} />小组件</button><button type="button" onClick={() => setPanel('appearance')}><SlidersHorizontal size={17} />外观</button></>}</nav>
       <div className="tably-top-actions">{editable && <button type="button" className="tably-icon-button tably-mobile-only" aria-label="外观" onClick={() => setPanel('appearance')}><SlidersHorizontal size={20} /></button>}<button type="button" className="tably-icon-button tably-config-trigger" aria-label="桌面 JSON 配置" title="桌面 JSON 配置" onClick={showJSON}><Code size={20} /></button>{editable && <button type="button" className="tably-button tably-button-primary" onClick={() => setPanel('add')}><Plus size={17} weight="bold" />添加<span className="tably-desktop-only">到桌面</span></button>}</div>
-    </header>
+    </header>}
 
-    <main className="tably-workspace">
-      <section className="tably-intro">
+    <main className={`tably-workspace${minimal ? ' tably-workspace--minimal' : ''}`}>
+      {!minimal && <section className="tably-intro">
         <div className="tably-greeting"><p className="tably-date">{dateLabel}<span className="tably-date-separator">/</span><span>好好享受今天</span></p><h1>{current.name || '你的日常，自成一桌'}<span className="tably-title-spark">*</span></h1><p className="tably-subtitle">喜欢的网站，随手的灵感。都在这里。</p></div>
         <div className="tably-search-wrap"><div className="tably-search"><MagnifyingGlass size={19} /><input ref={searchRef} aria-label="搜索桌面" placeholder="找点什么…" value={query} onChange={e => setQuery(e.target.value)} aria-controls={query ? searchId : undefined} aria-expanded={!!query} onKeyDown={e => { if (e.key === 'Enter' && results[0]) openItem(results[0]); }} />{query ? <button type="button" aria-label="清空搜索" onClick={() => setQuery('')}><X size={15} /></button> : <kbd>Ctrl K</kbd>}</div>
           {query && <div id={searchId} className="tably-search-results" aria-label="搜索结果">{results.length ? results.map(item => <button type="button" key={item.id} onClick={() => openItem(item)}>{item.type === 'link' ? <AppIcon item={item} small /> : <SquaresFour size={24} />}<span><strong>{item.title}</strong><small>{item.type === 'link' ? new URL(item.url).hostname : item.type === 'folder' ? '文件夹' : '小组件'}</small></span><ArrowUpRight size={16} /></button>) : <p>没有找到“{query}”</p>}</div>}
         </div>
-      </section>
+      </section>}
 
-      <div className="tably-section-bar"><div className="tably-section-name"><span className="tably-section-dot" />我的空间<span className="tably-item-count">{current.items.length}</span></div>{editable && <div className="tably-layout-actions">{history.length > 0 && <button type="button" onClick={undo} title="撤销上一步" aria-label="撤销上一步"><ArrowUUpLeft size={17} /></button>}<button type="button" onClick={() => { change(autoArrange(current, columns)); notify('桌面已自动整理'); }}><GridFour size={15} /><span>自动整理</span></button><span className="tably-toolbar-divider" /><button type="button" aria-pressed={editing} onClick={() => setEditing(!editing)} className={editing ? 'tably-edit-active' : ''}>{editing ? <Check size={15} /> : <PencilSimple size={15} />}<span>{editing ? '完成编辑' : '编辑布局'}</span></button></div>}</div>
+      {!minimal && <div className="tably-section-bar"><div className="tably-section-name"><span className="tably-section-dot" />我的空间<span className="tably-item-count">{current.items.length}</span></div>{editable && <div className="tably-layout-actions">{history.length > 0 && <button type="button" onClick={undo} title="撤销上一步" aria-label="撤销上一步"><ArrowUUpLeft size={17} /></button>}<button type="button" onClick={() => { change(autoArrange(current, columns)); notify('桌面已自动整理'); }}><GridFour size={15} /><span>自动整理</span></button><span className="tably-toolbar-divider" /><button type="button" aria-pressed={editing} onClick={() => setEditing(!editing)} className={editing ? 'tably-edit-active' : ''}>{editing ? <Check size={15} /> : <PencilSimple size={15} />}<span>{editing ? '完成编辑' : '编辑布局'}</span></button></div>}</div>}
       <DesktopGrid config={current} registry={registry} editing={editing} editable={editable} onChange={change} onOpen={openItem} onMenu={setManaged} onNotify={notify} onColumns={setColumns} />
-      <div className="tably-desk-hint">{editable ? <><Cursor size={14} />{editing ? '拖动应用调整位置；小组件顶部可拖动。Alt + 方向键也能移动。' : '随意拖一拖。将两个应用叠在一起，发现新的可能。'}</> : '属于你的数字空间'}</div>
+      {!minimal && <div className="tably-desk-hint">{editable ? <><Cursor size={14} />{editing ? '拖动应用调整位置；小组件顶部可拖动。Alt + 方向键也能移动。' : '随意拖一拖。将两个应用叠在一起，发现新的可能。'}</> : '属于你的数字空间'}</div>}
     </main>
 
-    <footer className="tably-bottom"><span className="tably-bottom-caption">A LITTLE SPACE. ALL YOURS.</span><div className="tably-dock" aria-label="快捷栏"><button type="button" className="tably-dock-home" aria-label="回到桌面顶部" onClick={() => rootRef.current?.querySelector('.tably-workspace')?.scrollTo({ top: 0, behavior: 'smooth' })}><SquaresFour size={25} weight="fill" /></button><span className="tably-dock-divider" />{dock.map(item => <button type="button" key={item.id} aria-label={`快捷打开${item.title}`} title={item.title} onClick={() => openLink(item)}><AppIcon item={item} small /><span className="tably-dock-tooltip">{item.title}</span></button>)}{editable && <><span className="tably-dock-divider" /><button type="button" className="tably-dock-add" aria-label="添加小组件" title="添加小组件" onClick={() => setPanel('widgets')}><Plus size={24} /></button></>}</div><span className="tably-bottom-mode"><span />{current.settings?.layout === 'free' ? '自由布局' : '网格对齐'}</span></footer>
+    <footer className={`tably-bottom${minimal ? ' tably-bottom--minimal' : ''}`}>{!minimal && <span className="tably-bottom-caption">A LITTLE SPACE. ALL YOURS.</span>}<div className="tably-dock" aria-label="快捷栏"><button type="button" className="tably-dock-home" aria-label="回到桌面顶部" onClick={() => rootRef.current?.querySelector('.tably-workspace')?.scrollTo({ top: 0, behavior: 'smooth' })}><SquaresFour size={25} weight="fill" /></button><span className="tably-dock-divider" />{dock.map(item => <button type="button" key={item.id} aria-label={`快捷打开${item.title}`} title={item.title} onClick={() => openLink(item)}><AppIcon item={item} small /><span className="tably-dock-tooltip">{item.title}</span></button>)}{editable && !minimal && <><span className="tably-dock-divider" /><button type="button" className="tably-dock-add" aria-label="添加小组件" title="添加小组件" onClick={() => setPanel('widgets')}><Plus size={24} /></button></>}</div>{!minimal && <span className="tably-bottom-mode"><span />{current.settings?.layout === 'free' ? '自由布局' : '网格对齐'}</span>}</footer>
     <div className={`tably-toast${notice ? ' tably-toast--visible' : ''}`} role="status" aria-live="polite">{notice && <><CheckCircle size={18} weight="fill" />{notice}</>}</div>
+
+    {minimal && contextMenu && <div className="tably-context-menu" role="menu" aria-label="桌面操作" style={{ left: contextMenu.x, top: contextMenu.y }} onContextMenu={event => event.stopPropagation()} onPointerDown={event => event.stopPropagation()}>
+      {contextMenu.item ? <>
+        <div className="tably-context-heading">{contextMenu.item.title}</div>
+        <button type="button" role="menuitem" onClick={() => { const item = contextMenu.item; setContextMenu(null); if (item) openItem(item); }}><ArrowUpRight size={16} />打开</button>
+        {editable && <button type="button" role="menuitem" onClick={() => { const item = contextMenu.item; setContextMenu(null); if (item) setManaged(item); }}><PencilSimple size={16} />编辑</button>}
+        {editable && <button type="button" role="menuitem" className="tably-context-danger" onClick={() => { const item = contextMenu.item; setContextMenu(null); if (item) { change(removeItem(current, item.id)); notify('已移除，可撤销恢复'); } }}><Trash size={16} />移除</button>}
+        <span className="tably-context-divider" />
+      </> : <div className="tably-context-heading">桌面操作</div>}
+      {editable && <>
+        <button type="button" role="menuitem" onClick={() => { setContextMenu(null); setPanel('add'); }}><Plus size={16} />添加网站</button>
+        <button type="button" role="menuitem" onClick={() => { setContextMenu(null); setPanel('widgets'); }}><SquaresFour size={16} />添加小组件</button>
+        <button type="button" role="menuitem" onClick={() => { setContextMenu(null); change(autoArrange(current, columns)); notify('桌面已自动整理'); }}><GridFour size={16} />自动整理</button>
+        <button type="button" role="menuitem" onClick={() => { setContextMenu(null); setEditing(value => !value); }}><PencilSimple size={16} />{editing ? '完成编辑' : '编辑布局'}</button>
+        {history.length > 0 && <button type="button" role="menuitem" onClick={() => { setContextMenu(null); undo(); }}><ArrowUUpLeft size={16} />撤销上一步</button>}
+        <span className="tably-context-divider" />
+        <button type="button" role="menuitem" onClick={() => { setContextMenu(null); setPanel('appearance'); }}><SlidersHorizontal size={16} />外观设置</button>
+      </>}
+      <button type="button" role="menuitem" onClick={() => { setContextMenu(null); showJSON(); }}><Code size={16} />桌面 JSON 配置</button>
+    </div>}
 
     {(panel === 'add' || panel === 'widgets') && <Dialog title={panel === 'add' ? '把喜欢的，放到桌面' : '给桌面加一点可能'} subtitle={panel === 'add' ? '一个网站，一点灵感，或一个好用的小组件。' : '轻量的小工具，让日常更顺手。'} onClose={() => setPanel(null)} wide>
       <div className="tably-tabs"><button type="button" className={panel === 'add' ? 'tably-tab-active' : ''} onClick={() => setPanel('add')}><ArrowSquareOut size={17} />网站应用</button><button type="button" className={panel === 'widgets' ? 'tably-tab-active' : ''} onClick={() => setPanel('widgets')}><SquaresFour size={17} />小组件</button></div>

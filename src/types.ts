@@ -59,6 +59,15 @@ export interface DesktopProps {
   widgets?: WidgetRegistry;
   onOpenLink?: (link: DesktopLink) => void;
   editable?: boolean;
+  /** Render only the desktop grid and dock; editing actions are available from the context menu. */
+  minimal?: boolean;
+  /**
+   * Controls the amount of chrome rendered around the desktop. `minimal`
+   * keeps only the grid and dock; actions are available from the context menu.
+   */
+  mode?: 'full' | 'minimal';
+  /** Alias for `mode="minimal"`, useful when the host app exposes a compact toggle. */
+  compact?: boolean;
   className?: string;
   style?: CSSProperties;
 }

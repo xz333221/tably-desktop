@@ -20,6 +20,7 @@ function Demo() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); setStorageError(false); }
     catch { setStorageError(true); }
   }, []);
-  return <><Desktop config={config} onChange={onChange} />{storageError && <div className="demo-storage-error" role="status">浏览器存储不可用，请导出 JSON 保存桌面。</div>}</>;
+  const minimal = new URLSearchParams(window.location.search).has('minimal');
+  return <><Desktop config={config} onChange={onChange} minimal={minimal} />{storageError && <div className="demo-storage-error" role="status">浏览器存储不可用，请导出 JSON 保存桌面。</div>}</>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><Demo /></StrictMode>);

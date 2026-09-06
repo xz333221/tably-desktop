@@ -181,5 +181,31 @@ test.describe('tably desktop demo', () => {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(1);
   });
+
+  test('minimal mode keeps only the desktop and exposes actions through context menus', async ({ page }) => {
+    await page.goto('/?minimal=1');
+    await page.evaluate((key) => localStorage.removeItem(key), STORAGE_KEY);
+    await page.reload();
+    await expect(page.getByRole('button', { name: '打开Google', exact: true })).toBeVisible();
+    await expect(page.locator('.tably-topbar')).toHaveCount(0);
+    await expect(page.locator('.tably-intro')).toHaveCount(0);
+    await expect(page.locator('.tably-section-bar')).toHaveCount(0);
+    await expect(page.locator('.tably-desk-hint')).toHaveCount(0);
+    await expect(page.locator('.tably-bottom-caption')).toHaveCount(0);
+    await expect(page.locator('.tably-bottom-mode')).toHaveCount(0);
+
+    await page.locator('.tably-workspace').click({ button: 'right', position: { x: 10, y: 10 } });
+    const menu = page.getByRole('menu', { name: '桌面操作' });
+    await expect(menu).toBeVisible();
+    await menu.getByRole('menuitem', { name: '添加网站' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('button', { name: '关闭', exact: true }).click();
+
+    await page.getByRole('button', { name: '打开Google', exact: true }).click({ button: 'right' });
+    const itemMenu = page.getByRole('menu', { name: '桌面操作' });
+    await expect(itemMenu).toContainText('Google');
+    await itemMenu.getByRole('menuitem', { name: '编辑', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '编辑网站', exact: true })).toBeVisible();
+  });
 });
 
